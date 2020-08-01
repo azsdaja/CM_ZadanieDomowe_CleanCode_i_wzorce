@@ -1,0 +1,18 @@
+Pracujecie w firmie tworzącej karciane gry internetowe.
+Wasz szef zleca wam do ukończenia moduł do znajdywania najmocniejszej pokerowej kombinacji dla danej ręki (zgodnie z sekcją „Starszeństwo kart” na Wikipedii: https://pl.wikipedia.org/wiki/Poker). Pracę nad nim rozpoczął niejaki Czesiek. Niestety, o Cześku słyszała tylko jedna osoba z zespołu, która twierdzi, że nie pracuje on tu już od pięciu lat. Musicie sami rozejrzeć się po dostępnych klasach, ukończyć implementację z testami i wyczyścić kod.
+
+Punktacja:
+1. 40% - uzupełnijce brakujący kod tam, gdzie są komentarze ze słowem „todo”.
+2. 20% - wykorzystajcie wzorzec Obserwator (z użyciem eventów lub bez) w następujący sposób:
+         a. po wyznaczeniu najmocniejszej kombinacji dla ręki publikowany jest komunikat zawierający numer rozdania, karty w ręce (jako obiekty Card) i najmocniejszą wyliczoną kombinację
+         b. są dwaj subskrybenci komunikatu: jeden po prostu zapisuje w swojej właściwości, jaka padła najmocniejsza kombinacja w ramach każdego rozdania, a drugi rzuca wyjątek jeśli jakaś karta powtórzyła się w ramach jednego rozdania.
+3. 40% - za czystość kodu (zgodnie z zasadami przedstawionymi na zajęciach).
+4. 10% - za 3-4 sensowne testy (pokrywające różne przypadki) do klas wydzielonych w ramach refaktoringu zastanego kodu lub do subskrybentów.
+Chyba nie muszę mówić, że testy mają przechodzić ;)
+Do uzyskania jest maks. 100%.
+
+Uwagi:
+0. Jako „kombinację” rozumiem sam typ, czyli np. trójkę lub fulla, a nie grupę kart, która tworzy daną kombinację.
+1. możecie ufać, że tam, gdzie użyto w komentarzu wyrażenia "works fine", kod działa poprawnie, nawet jeśli nie jest czysty.
+2. nie musicie się martwić o walidację parametrów na wejściu do GetHighestCombination - zakładamy, że będą poprawne.
+3. w przypadkach z ciągami kart nie musicie obsługiwać przejścia z asa do dwójki - np. kombinacji król, as, 2, 3, 4 nie musicie traktować jako strita/pokera.
