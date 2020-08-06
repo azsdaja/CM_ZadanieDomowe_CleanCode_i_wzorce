@@ -42,9 +42,12 @@ namespace PokerHands
                     bool highestIsAce = cardsfromLowest.Last().Value == Value.Ace;
                     return highestIsAce ? Combination.RoyalFlush : Combination.StraightFlush;
                 }
-                return Combination.Straight;
+                
+                    return Combination.Straight;
+                
+                
             }
-            else if(cardsAreSameColor)
+            if(cardsAreSameColor)
             {
                 return Combination.Flush;
             }
@@ -55,22 +58,67 @@ namespace PokerHands
                 .OrderByDescending(g => g.Count())
                 .ThenByDescending(g => g.Key)
                 .First().ToList();
-
-            if(groupWithMostOccurences.Count == 4)
+        
+            // todo - code above works fine... but what should I write to handle other cases?????     
+            if (groupWithMostOccurences.Count == 4)
             {
                 return Combination.Quads;
             }
 
-            // todo - code above works fine... but what should I write to handle other cases?????
+            if (groupWithMostOccurences.Count == 3)
+            {
+                
+
+                    if (cardsfromLowest[3].Value == cardsfromLowest[4].Value)
+                    {
+                        return Combination.Full;
+                    }
+                    else
+                    {
+                        return Combination.Three;          
+                    }
+
+            }
+            if (groupWithMostOccurences.Count == 2)
+            {
+
+                if (cardsfromLowest[2].Value == cardsfromLowest[3].Value)
+                {
+                    return Combination.TwoPairs;
+                }
+                else
+                {
+                    return Combination.Pair;
+                }
+
+            }
 
             return Combination.HighCard;
         }
 
         private static bool IsStraight(List<Card> cardsfromLowest)
         {
-            return new Random().Next(1000) > 500; // he he
+            bool resultFinal;
+            bool result = false;
+            for (int i = 0; i < 4; i++)
+            {
+            
+                if (cardsfromLowest[i+1].Value== cardsfromLowest[i].Value+1)
+                {
+                    result = true;           
+                }
+                else
+                {
+                    result = false;
+                    break;
+                }
 
-            // todo: how to check that cards have consequetive values???
+            }
+            resultFinal = result;
+            return resultFinal;
+
+            // todo: how to check that cards have consequetive values??         
+
         }
 
         // works fine!
