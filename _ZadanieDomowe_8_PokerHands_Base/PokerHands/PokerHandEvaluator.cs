@@ -7,36 +7,16 @@ namespace PokerHands
 {
     public class PokerHandEvaluator
     {
-        // posprzątam jak wrócę z urlopu, obiecuję! — Czesiek, 4 VII 2011
-
-        private readonly Dictionary<string, Value> _valueStringsToValues = new Dictionary<string, Value>
+        private readonly ICardCreator _cardCreator;
+        public PokerHandEvaluator(ICardCreator cardCreator)
         {
-            {"2", Value.Two},
-            {"3", Value.Three},
-            {"4", Value.Four},
-            {"5", Value.Five},
-            {"6", Value.Six},
-            {"7", Value.Seven},
-            {"8", Value.Eight},
-            {"9", Value.Nine},
-            {"10", Value.Ten},
-            {"J", Value.Jack},
-            {"Q", Value.Queen},
-            {"K", Value.King},
-            {"A", Value.Ace},
-        };
-         private readonly Dictionary<string, Color> _colorStringsToColors = new Dictionary<string, Color>
-        {
-            {"C", Color.Clubs},
-            {"S", Color.Spades},
-            {"D", Color.Diamonds},
-            {"H", Color.Hearts},
-        };
+            _cardCreator = cardCreator;
+        }
 
         public Combination WhatIsTheHighestCombination(int gameNumber, params string[] cards)
         {
             
-            IEnumerable<Card> parsedCards = cards.Select(card => ParseCardString(card));
+            IEnumerable<Card> parsedCards = cards.Select(card => _cardCreator.ParseCardString(card));
 
             List<Card> cardsfromLowest = parsedCards.OrderBy(k => k.Value).ToList();
 
@@ -136,27 +116,6 @@ namespace PokerHands
                 select cardGroup;
         }
 
-        // works fine!
-        public Card ParseCardString(string card)
-        {
-            string valueString;
-            string colorString = card.Substring(0, 1);
-
-            if (card.Length == 3)
-            {
-                valueString = card.Substring(1, 2);
-            }
-            else
-            {
-                valueString = card.Substring(1, 1);
-            }
-
-            Color color = _colorStringsToColors[colorString];
-            Value value = _valueStringsToValues[valueString];
-
-            return new Card(color, value);
-        }
-        
        
         public List<ISubscriber> _subscribers = new List<ISubscriber>();
         public void RegisterSubscriber(ISubscriber subscriber)
