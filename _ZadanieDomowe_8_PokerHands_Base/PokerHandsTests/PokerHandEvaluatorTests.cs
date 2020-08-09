@@ -16,6 +16,8 @@ namespace PokerHandsTests
 
             if(highestCombination != Combination.Quads)
                 throw new Exception("not quads");
+            
+           
         }
 
         [TestCase("C2", "S5", "D7", "C9", "HQ", Combination.HighCard)]
@@ -36,6 +38,11 @@ namespace PokerHandsTests
             Combination x
                 = evaluator.WhatIsTheHighestCombination(123, card1, card2, card3, card4, card5);
             Assert.AreEqual(expect, x);
+
+              evaluator.NotifyEvaluator(123, evaluator.WhatIsTheHighestCombination.card1, evaluator.WhatIsTheHighestCombination.card2,WhatIsTheHighestCombination.card3,
+                WhatIsTheHighestCombination.card4,WhatIsTheHighestCombination.card5, x);
+     
+
         }
     }
 }

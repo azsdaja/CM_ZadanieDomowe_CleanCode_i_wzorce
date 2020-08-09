@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 
 namespace PokerHands
 {
@@ -24,9 +25,17 @@ namespace PokerHands
             {"K", Value.King},
             {"A", Value.Ace},
         };
+         private readonly Dictionary<string, Color> _colorStringsToColors = new Dictionary<string, Color>
+        {
+            {"C", Color.Clubs},
+            {"S", Color.Spades},
+            {"D", Color.Diamonds},
+            {"H", Color.Hearts},
+        };
 
         public Combination WhatIsTheHighestCombination(int gameNumber, params string[] cards)
         {
+            
             IEnumerable<Card> parsedCards = cards.Select(card => ParseCardString(card));
 
             List<Card> cardsfromLowest = parsedCards.OrderBy(k => k.Value).ToList();
@@ -43,9 +52,7 @@ namespace PokerHands
                     return highestIsAce ? Combination.RoyalFlush : Combination.StraightFlush;
                 }
                 
-                    return Combination.Straight;
-                
-                
+                    return Combination.Straight;            
             }
             if(cardsAreSameColor)
             {
@@ -67,8 +74,7 @@ namespace PokerHands
 
             if (groupWithMostOccurences.Count == 3)
             {
-                
-
+              
                     if (cardsfromLowest[3].Value == cardsfromLowest[4].Value)
                     {
                         return Combination.Full;
@@ -77,7 +83,6 @@ namespace PokerHands
                     {
                         return Combination.Three;          
                     }
-
             }
             if (groupWithMostOccurences.Count == 2)
             {
@@ -94,6 +99,7 @@ namespace PokerHands
             }
 
             return Combination.HighCard;
+            
         }
 
         private static bool IsStraight(List<Card> cardsfromLowest)
@@ -131,7 +137,7 @@ namespace PokerHands
         }
 
         // works fine!
-        private Card ParseCardString(string card)
+        public Card ParseCardString(string card)
         {
             string valueString;
             string colorString = card.Substring(0, 1);
@@ -150,13 +156,22 @@ namespace PokerHands
 
             return new Card(color, value);
         }
-
-        private readonly Dictionary<string, Color> _colorStringsToColors = new Dictionary<string, Color>
+        
+       
+        public List<ISubscriber> _subscribers = new List<ISubscriber>();
+        public void RegisterSubscriber(ISubscriber subscriber)
         {
-            {"C", Color.Clubs},
-            {"S", Color.Spades},
-            {"D", Color.Diamonds},
-            {"H", Color.Hearts},
-        };
+            _subscribers.Add(subscriber);
+        }
+        
+        public void NotifyEvaluator(int number, Card card1, Card card2, Card card3, Card card4, Card card5, Combination combination)
+        {
+            foreach (var subscriber in _subscribers)
+            {
+                subscriber.Update(number, card1, card2, card3, card4, card5, combination);              
+            }
+        }
     }
+
+   
 }
