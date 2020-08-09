@@ -7,10 +7,16 @@ namespace PokerHandsTests
 {
     public class PokerHandEvaluatorTests
     {
+        private readonly ICardCreator _cardCreator;
+        public PokerHandEvaluatorTests(ICardCreator cardCreator)
+        {
+            _cardCreator = cardCreator;
+        }
+
         [Test]
         public void GetHighestCombination_FourSevens_ReturnsQuads()
         {
-            var evaluator = new PokerHandEvaluator();
+            var evaluator = new PokerHandEvaluator(_cardCreator);
 
             Combination highestCombination = evaluator.WhatIsTheHighestCombination(123, "H7", "S7", "C7", "CQ", "D7");
 
@@ -34,12 +40,13 @@ namespace PokerHandsTests
         public void GetHighestCombination_FiveCorrectCards_ReturnsHighestCombination
             (string card1, string card2, string card3, string card4, string card5, Combination expect)
         {
-            var evaluator = new PokerHandEvaluator();
+            var evaluator = new PokerHandEvaluator(_cardCreator);
             Combination x
                 = evaluator.WhatIsTheHighestCombination(123, card1, card2, card3, card4, card5);
             Assert.AreEqual(expect, x);
 
-              evaluator.NotifyEvaluator(123, evaluator.ParseCardString(card1), evaluator.ParseCardString(card2), evaluator.ParseCardString(card3), evaluator.ParseCardString(card4), evaluator.ParseCardString(card5), x);
+              evaluator.NotifyEvaluator(123, _cardCreator.ParseCardString(card1), _cardCreator.ParseCardString(card2), _cardCreator.ParseCardString(card3), _cardCreator.ParseCardString(card4),
+                  _cardCreator.ParseCardString(card5), x);
      
 
         }
