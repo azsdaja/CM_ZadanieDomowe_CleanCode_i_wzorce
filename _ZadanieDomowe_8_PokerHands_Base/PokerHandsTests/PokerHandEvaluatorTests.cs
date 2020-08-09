@@ -39,8 +39,7 @@ namespace PokerHandsTests
                 = evaluator.WhatIsTheHighestCombination(123, card1, card2, card3, card4, card5);
             Assert.AreEqual(expect, x);
 
-              evaluator.NotifyEvaluator(123, evaluator.WhatIsTheHighestCombination.card1, evaluator.WhatIsTheHighestCombination.card2,WhatIsTheHighestCombination.card3,
-                WhatIsTheHighestCombination.card4,WhatIsTheHighestCombination.card5, x);
+              evaluator.NotifyEvaluator(123, evaluator.ParseCardString(card1), evaluator.ParseCardString(card2), evaluator.ParseCardString(card3), evaluator.ParseCardString(card4), evaluator.ParseCardString(card5), x);
      
 
         }
