@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace PokerHands
 {
-    public class CardCreator : ICardCreator
+    public class CardParser : ICardParser
     {
         private readonly Dictionary<string, Value> _valueStringsToValues = new Dictionary<string, Value>
         {
@@ -48,6 +49,32 @@ namespace PokerHands
             Value value = _valueStringsToValues[valueString];
 
             return new Card(color, value);
+        }
+
+        public bool IsStraight(List<Card> cardsfromLowest)
+        {
+            bool result = false;
+            for (int i = 0; i < 4; i++)
+            {
+                if (cardsfromLowest[i + 1].Value == cardsfromLowest[i].Value + 1)
+                {
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                    break;
+                }
+            }
+            return result;
+        }
+
+        public IEnumerable<IGrouping<Value, Card>> GroupCardsByValues(List<Card> cardsByValue)
+        {
+            return from card in cardsByValue
+                   group card by card.Value
+                into cardGroup
+                   select cardGroup;
         }
     }
 }

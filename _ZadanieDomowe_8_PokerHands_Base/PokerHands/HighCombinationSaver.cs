@@ -8,11 +8,12 @@ namespace PokerHands
     {
         public Combination Combination { get; set; }
         public int GameNumber { get; set; }
-
-        public void Update(int numberOfDeal, Card card1, Card card2, Card card3, Card card4, Card card5, Combination Combine)
+        Dictionary<int, Combination> dealResuslt = new Dictionary<int, Combination>();
+        public void Update(int numberOfDeal, List<Card> cards, Combination Combine)
         {
             Combination = Combine;
             GameNumber = numberOfDeal;
+            dealResuslt.Add(GameNumber, Combination);
         }
     }
 }
