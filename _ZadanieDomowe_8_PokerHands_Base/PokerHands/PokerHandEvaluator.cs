@@ -6,109 +6,107 @@ namespace PokerHands
 {
     public class PokerHandEvaluator
     {
-        // posprzątam jak wrócę z urlopu, obiecuję! — Czesiek, 4 VII 2011
-
-        private readonly Dictionary<string, Value> _valueStringsToValues = new Dictionary<string, Value>
+        IPokerCardParser _pokerCardParser;
+        public PokerHandEvaluator(IPokerCardParser pokerCardParser)
         {
-            {"2", Value.Two},
-            {"3", Value.Three},
-            {"4", Value.Four},
-            {"5", Value.Five},
-            {"6", Value.Six},
-            {"7", Value.Seven},
-            {"8", Value.Eight},
-            {"9", Value.Nine},
-            {"10", Value.Ten},
-            {"J", Value.Jack},
-            {"Q", Value.Queen},
-            {"K", Value.King},
-            {"A", Value.Ace},
-        };
+            _pokerCardParser = pokerCardParser;
+        }
 
-        public Combination WhatIsTheHighestCombination(int gameNumber, params string[] cards)
+        public Combination GetHighestCombination(int gameNumber, params string[] cards)
         {
-            IEnumerable<Card> parsedCards = cards.Select(card => ParseCardString(card));
+            IEnumerable<Card> parsedCards = cards.Select(card => _pokerCardParser.ParseCardString(card));
 
-            List<Card> cardsfromLowest = parsedCards.OrderBy(k => k.Value).ToList();
+            List<Card> cardsFromLowest = parsedCards.OrderBy(k => k.Value).ToList();
 
-            bool isStraight = IsStraight(cardsfromLowest);
+            bool cardsAreStraight = AreCardsStraight(cardsFromLowest);
 
-            Color firstCardColor = cardsfromLowest.First().Color;
-            bool cardsAreSameColor = cardsfromLowest.All(c => c.Color == firstCardColor);
-            if (isStraight)
+            bool cardsAreSameColor = AreCardsSameColor(cardsFromLowest);
+
+            if (cardsAreStraight)
             {
                 if (cardsAreSameColor)
                 {
-                    bool highestIsAce = cardsfromLowest.Last().Value == Value.Ace;
+                    bool highestIsAce = cardsFromLowest.Last().Value == Value.Ace;
                     return highestIsAce ? Combination.RoyalFlush : Combination.StraightFlush;
                 }
                 return Combination.Straight;
             }
-            else if(cardsAreSameColor)
+            if (cardsAreSameColor)
             {
                 return Combination.Flush;
             }
 
-            List<IGrouping<Value, Card>> cardGroupsByValues = GroupCardsByValues(cardsfromLowest).ToList();
+            List<IGrouping<Value, Card>> orderedGroupsByMostOccurences = GroupCardsByOccurance(cardsFromLowest);
+            List<Card> groupWithMostOccurences = orderedGroupsByMostOccurences.First().ToList();
 
-            List<Card> groupWithMostOccurences = cardGroupsByValues
-                .OrderByDescending(g => g.Count())
-                .ThenByDescending(g => g.Key)
-                .First().ToList();
-
-            if(groupWithMostOccurences.Count == 4)
+            if (groupWithMostOccurences.Count == 4)
             {
                 return Combination.Quads;
             }
 
-            // todo - code above works fine... but what should I write to handle other cases?????
+            List<Card> secondGroupByMostOccurences = GetSecondGroupByOccurance(orderedGroupsByMostOccurences);
+
+            if (groupWithMostOccurences.Count == 3)
+            {
+                return (secondGroupByMostOccurences.Count == 2) ? Combination.Full : Combination.Three;
+            }
+
+            if (groupWithMostOccurences.Count == 2)
+            {
+                return (secondGroupByMostOccurences.Count == 2) ? Combination.TwoPairs : Combination.Pair;
+            }
 
             return Combination.HighCard;
         }
 
-        private static bool IsStraight(List<Card> cardsfromLowest)
+        private static List<IGrouping<Value, Card>> GroupCardsByOccurance(List<Card> cardsFromLowest)
         {
-            return new Random().Next(1000) > 500; // he he
+            List<IGrouping<Value, Card>> cardGroupsByValues = GroupCardsByValues(cardsFromLowest).ToList();
 
-            // todo: how to check that cards have consequetive values???
+            List<IGrouping<Value, Card>> orderedGroupsByMostOccurences = cardGroupsByValues
+                .OrderByDescending(g => g.Count())
+                .ThenByDescending(g => g.Key).ToList();
+            return orderedGroupsByMostOccurences;
         }
 
-        // works fine!
+        private static bool AreCardsSameColor(List<Card> cardsfromLowest)
+        {
+            Color firstCardColor = cardsfromLowest.First().Color;
+            bool cardsAreSameColor = cardsfromLowest.All(c => c.Color == firstCardColor);
+            return cardsAreSameColor;
+        }
+
+        private List<Card> GetSecondGroupByOccurance(List<IGrouping<Value, Card>> groupOrderedByMostOccurences)
+        {
+            groupOrderedByMostOccurences.RemoveAt(0);
+            return groupOrderedByMostOccurences.First().ToList();
+        }
+
+        private static bool AreCardsStraight(List<Card> cardsfromLowest)
+        {
+            bool isStraight = false;
+
+            for (int i = 1; i < cardsfromLowest.Count; i++)
+            { 
+                if (cardsfromLowest[i-1].Value +1 == cardsfromLowest[i].Value)
+                {
+                    isStraight = true;
+                }
+                else
+                {
+                    isStraight = false;
+                    break;
+                }
+            }
+            return isStraight;
+        }
+
         private static IEnumerable<IGrouping<Value, Card>> GroupCardsByValues(List<Card> cardsByValue)
         {
             return from card in cardsByValue
                 group card by card.Value
                 into cardGroup
                 select cardGroup;
-        }
-
-        // works fine!
-        private Card ParseCardString(string card)
-        {
-            string valueString;
-            string colorString = card.Substring(0, 1);
-
-            if (card.Length == 3)
-            {
-                valueString = card.Substring(1, 2);
-            }
-            else
-            {
-                valueString = card.Substring(1, 1);
-            }
-
-            Color color = _colorStringsToColors[colorString];
-            Value value = _valueStringsToValues[valueString];
-
-            return new Card(color, value);
-        }
-
-        private readonly Dictionary<string, Color> _colorStringsToColors = new Dictionary<string, Color>
-        {
-            {"C", Color.Clubs},
-            {"S", Color.Spades},
-            {"D", Color.Diamonds},
-            {"H", Color.Hearts},
-        };
+        }        
     }
 }
