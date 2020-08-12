@@ -1,14 +1,107 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace PokerHands
 {
     public class PokerHandEvaluator
     {
-        // posprzątam jak wrócę z urlopu, obiecuję! — Czesiek, 4 VII 2011
+        public Combination WhatIsTheHighestCombination(params string[] cards)
+        {
 
-        private readonly Dictionary<string, Value> _valueStringsToValues = new Dictionary<string, Value>
+            
+
+            IEnumerable<Card> parsedCards = cards.Select(card => ParseCardString(card));
+            List<Card> cardsFromLowest = parsedCards.OrderBy(k => k.Value).ToList();
+
+            Color firstCardColor = cardsFromLowest.First().Color;
+            bool cardsAreSameColor = cardsFromLowest.All(c => c.Color == firstCardColor);
+
+            bool isStraight = IsStraight(cardsFromLowest);
+            if (isStraight)
+            {
+                if (cardsAreSameColor)
+                {
+                    bool highestIsAce = cardsFromLowest.Last().Value == Value.Ace;
+                    return highestIsAce ? Combination.RoyalFlush : Combination.StraightFlush;
+                }
+                return Combination.Straight; 
+            }
+            else if(cardsAreSameColor)
+            {
+                return Combination.Flush;
+            }
+
+            List<IGrouping<Value, Card>> cardGroupsByValues = GroupCardsByValues(cardsFromLowest).ToList();
+            List<Card> groupWithMostOccurences_1 = cardGroupsByValues
+                .OrderByDescending(g => g.Count())
+                .ThenByDescending(g => g.Key)
+                .First().ToList();
+
+            cardsFromLowest.RemoveAll(i => groupWithMostOccurences_1.Contains(i));
+
+            List<IGrouping<Value, Card>> cardGroupsByValuesMinusGroupWithMostOccurences_1 = GroupCardsByValues(cardsFromLowest).ToList();
+            List<Card> groupWithMostOccurences_2 = cardGroupsByValuesMinusGroupWithMostOccurences_1
+                .OrderByDescending(g => g.Count())
+                .ThenByDescending(g => g.Key)
+                .First().ToList();
+
+            switch (groupWithMostOccurences_1.Count)
+            {
+                case 4:
+                    AddCombination(Combination.Quads);
+                    return Combination.Quads;
+                case 3 when groupWithMostOccurences_2.Count == 2:
+                    return Combination.Full;
+                case 3 when groupWithMostOccurences_2.Count == 1:
+                    return Combination.Three;
+                case 2 when groupWithMostOccurences_2.Count == 2:
+                    return Combination.TwoPairs;
+                case 2 when groupWithMostOccurences_2.Count == 1:
+                    return Combination.Pair;
+                default:
+                    return Combination.HighCard;
+            }
+
+        }
+
+        bool IsStraight(List<Card> cardsfromLowest) => cardsfromLowest.GroupBy(card => card.Value).Count() == cardsfromLowest.Count() 
+                                                    && cardsfromLowest.Max(card => (int)card.Value) - cardsfromLowest.Min(card => (int)card.Value) == 4;
+
+        private static IEnumerable<IGrouping<Value, Card>> GroupCardsByValues(List<Card> cardsByValue)
+        {
+            return from card in cardsByValue
+                group card by card.Value
+                into cardGroup
+                select cardGroup;
+        }
+
+        private Card ParseCardString(string card)
+        {
+            string valueString;
+            string colorString = card.Substring(0, 1);
+
+            if (card.Length == 3)
+               valueString = card.Substring(1, 2);
+            else
+               valueString = card.Substring(1, 1);
+            
+            Color color = _colorStringsToColors[colorString];
+            Value value = ValueStringsToValues[valueString];
+
+            return new Card(color, value);
+        }
+
+        public readonly Dictionary<string, Color> _colorStringsToColors = new Dictionary<string, Color>
+        {
+            {"C", Color.Clubs},
+            {"S", Color.Spades},
+            {"D", Color.Diamonds},
+            {"H", Color.Hearts},
+        };
+
+        public Dictionary<string, Value> ValueStringsToValues { get; } = new Dictionary<string, Value>
         {
             {"2", Value.Two},
             {"3", Value.Three},
@@ -24,91 +117,17 @@ namespace PokerHands
             {"K", Value.King},
             {"A", Value.Ace},
         };
+        public List<Combination> CombinationListPerHand { get; set; }
 
-        public Combination WhatIsTheHighestCombination(int gameNumber, params string[] cards)
+        public void AddCombination (Combination combination)
         {
-            IEnumerable<Card> parsedCards = cards.Select(card => ParseCardString(card));
 
-            List<Card> cardsfromLowest = parsedCards.OrderBy(k => k.Value).ToList();
-
-            bool isStraight = IsStraight(cardsfromLowest);
-
-            Color firstCardColor = cardsfromLowest.First().Color;
-            bool cardsAreSameColor = cardsfromLowest.All(c => c.Color == firstCardColor);
-            if (isStraight)
+            foreach (var combination in CombinationListPerHand)
             {
-                if (cardsAreSameColor)
-                {
-                    bool highestIsAce = cardsfromLowest.Last().Value == Value.Ace;
-                    return highestIsAce ? Combination.RoyalFlush : Combination.StraightFlush;
-                }
-                return Combination.Straight;
+                CombinationListPerHand.Add(combination);
             }
-            else if(cardsAreSameColor)
-            {
-                return Combination.Flush;
-            }
+            
 
-            List<IGrouping<Value, Card>> cardGroupsByValues = GroupCardsByValues(cardsfromLowest).ToList();
-
-            List<Card> groupWithMostOccurences = cardGroupsByValues
-                .OrderByDescending(g => g.Count())
-                .ThenByDescending(g => g.Key)
-                .First().ToList();
-
-            if(groupWithMostOccurences.Count == 4)
-            {
-                return Combination.Quads;
-            }
-
-            // todo - code above works fine... but what should I write to handle other cases?????
-
-            return Combination.HighCard;
         }
-
-        private static bool IsStraight(List<Card> cardsfromLowest)
-        {
-            return new Random().Next(1000) > 500; // he he
-
-            // todo: how to check that cards have consequetive values???
-        }
-
-        // works fine!
-        private static IEnumerable<IGrouping<Value, Card>> GroupCardsByValues(List<Card> cardsByValue)
-        {
-            return from card in cardsByValue
-                group card by card.Value
-                into cardGroup
-                select cardGroup;
-        }
-
-        // works fine!
-        private Card ParseCardString(string card)
-        {
-            string valueString;
-            string colorString = card.Substring(0, 1);
-
-            if (card.Length == 3)
-            {
-                valueString = card.Substring(1, 2);
-            }
-            else
-            {
-                valueString = card.Substring(1, 1);
-            }
-
-            Color color = _colorStringsToColors[colorString];
-            Value value = _valueStringsToValues[valueString];
-
-            return new Card(color, value);
-        }
-
-        private readonly Dictionary<string, Color> _colorStringsToColors = new Dictionary<string, Color>
-        {
-            {"C", Color.Clubs},
-            {"S", Color.Spades},
-            {"D", Color.Diamonds},
-            {"H", Color.Hearts},
-        };
     }
 }

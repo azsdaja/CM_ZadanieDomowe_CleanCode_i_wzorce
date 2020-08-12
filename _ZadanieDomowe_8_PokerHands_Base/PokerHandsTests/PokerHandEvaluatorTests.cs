@@ -12,7 +12,7 @@ namespace PokerHandsTests
         {
             var evaluator = new PokerHandEvaluator();
 
-            Combination highestCombination = evaluator.WhatIsTheHighestCombination(123, "H7", "S7", "C7", "CQ", "D7");
+            Combination highestCombination = evaluator.WhatIsTheHighestCombination("H7", "S7", "C7", "CQ", "D7");
 
             if(highestCombination != Combination.Quads)
                 throw new Exception("not quads");
@@ -24,7 +24,7 @@ namespace PokerHandsTests
         [TestCase("C2", "S2", "D2", "C9", "HQ", Combination.Three)]
         [TestCase("C2", "S3", "D4", "C5", "H6", Combination.Straight)]
         [TestCase("C2", "C5", "C7", "C9", "CQ", Combination.Flush)]
-        // [TestCase] todo: how should I test a case with Full?
+        [TestCase("C2", "C2", "C2", "H9", "H9", Combination.Full)]
         [TestCase("C2", "S2", "D2", "H2", "HQ", Combination.Quads)]
         [TestCase("H9", "H10", "H7", "H8", "HJ", Combination.StraightFlush)]
         [TestCase("H10", "HJ", "HQ", "HK", "HA", Combination.RoyalFlush)]
@@ -34,9 +34,10 @@ namespace PokerHandsTests
             var evaluator = new PokerHandEvaluator();
 
             Combination x 
-                = evaluator.WhatIsTheHighestCombination(123, card1, card2, card3, card4, card5);
+                = evaluator.WhatIsTheHighestCombination(card1, card2, card3, card4, card5);
 
-            // todo - okay, actually I forgot how to write assertions
+            Assert.AreEqual(expect, x);
+
         }
     }
 }
