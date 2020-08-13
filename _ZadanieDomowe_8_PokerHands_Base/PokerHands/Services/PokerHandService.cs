@@ -1,4 +1,5 @@
 ﻿using PokerHands.Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,5 +21,13 @@ namespace PokerHands.Services
             group card by card.Value
             into cardGroup
             select cardGroup;
+
+        public void CheckCorrectnessOfHand(List<Card> parsedCards)
+        {
+            if (parsedCards.Count != parsedCards.Distinct().Count())
+            {
+                throw new Exception("There are two the same cards in hand");
+            }
+        }
     }
 }
