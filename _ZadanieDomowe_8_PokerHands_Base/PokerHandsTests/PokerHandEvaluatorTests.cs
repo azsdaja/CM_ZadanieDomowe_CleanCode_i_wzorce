@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using PokerHands;
+using PokerHands.Services;
 
 namespace PokerHandsTests
 {
@@ -18,7 +19,7 @@ namespace PokerHandsTests
         public void GetHighestCombination_FiveCorrectCards_ReturnsHighestCombination
             (string card1, string card2, string card3, string card4, string card5, Combination expected)
         {
-            var evaluator = new PokerHandEvaluator();
+            var evaluator = new PokerHandEvaluator(new PokerHandService(), new CardParserService());
 
             Combination actual 
                 = evaluator.WhatIsTheHighestCombination(123, card1, card2, card3, card4, card5);
