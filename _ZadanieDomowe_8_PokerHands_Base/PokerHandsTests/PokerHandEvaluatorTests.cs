@@ -21,7 +21,7 @@ namespace PokerHandsTests
         {
             var evaluator = new PokerHandEvaluator(new PokerHandService(), new CardParserService());
 
-            Combination actual 
+            Combination actual
                 = evaluator.WhatIsTheHighestCombination(123, card1, card2, card3, card4, card5);
 
             Assert.AreEqual(expected, actual);

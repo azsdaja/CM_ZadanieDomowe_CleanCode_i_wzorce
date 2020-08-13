@@ -1,5 +1,4 @@
-﻿using PokerHands.Services;
-using PokerHands.Services.Interfaces;
+﻿using PokerHands.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,7 +64,7 @@ namespace PokerHands
 
         private bool IsSameColor(List<Card> cardsfromLowest) => cardsfromLowest.All(card => card.Color == cardsfromLowest.First().Color);
 
-        private bool IsStraight(List<Card> cardsfromLowest) => !cardsfromLowest.Select((card, selector) => 
+        private bool IsStraight(List<Card> cardsfromLowest) => !cardsfromLowest.Select((card, selector) =>
             card.Value - selector).Distinct().Skip(1).Any();
 
         private Func<IGrouping<Value, Card>, bool> IsGroupOf(int n) =>

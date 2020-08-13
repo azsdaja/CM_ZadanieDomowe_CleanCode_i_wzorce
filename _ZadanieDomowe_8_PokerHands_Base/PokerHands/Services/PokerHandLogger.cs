@@ -8,7 +8,7 @@ namespace PokerHands.Services
     {
         public GameLog SaveGameResult(int gameNumber, List<Card> cardsInHand, Combination highestCombination)
         {
-            return new GameLog(gameNumber, cardsInHand ,highestCombination);
+            return new GameLog(gameNumber, cardsInHand, highestCombination);
         }
     }
 }
